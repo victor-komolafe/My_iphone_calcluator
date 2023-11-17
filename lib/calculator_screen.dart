@@ -151,6 +151,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     // }
 
     //             number2.isNotEmpty &&)
+
     return "$number1$operand$number2".isEmpty
         ? "0"
         : ("$number1$operand".isNotEmpty &&
@@ -197,6 +198,9 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
+    //Details for sliding to del Numbers
+    double _initialX = 0.0;
+    double _currentX = 0.0;
 
     return Scaffold(
       appBar: AppBar(
@@ -207,7 +211,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               child: Text(
                 'History',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 18,
                   fontStyle: FontStyle.italic,
                   color: Colors.red,
                 ),
@@ -223,8 +227,21 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
             Expanded(
               child: GestureDetector(
-                onHorizontalDragStart: (_) {
-                  delete(); //slide to delete function
+                onHorizontalDragStart: (details) {
+                  _initialX = details.globalPosition.dx;
+                },
+                onHorizontalDragUpdate: (details) {
+                  _currentX = details.globalPosition.dx;
+                },
+                onHorizontalDragEnd: (details) {
+                  double deltaX = _currentX - _initialX;
+                  print('deltaX value is: $deltaX');
+                  if (deltaX < -20 && _currentX != 0) {
+                    //slide to the left
+                    delete();
+                  }
+                  _initialX = 0.0;
+                  _currentX = 0.0;
                 },
                 child: Container(
                   // height: screenSize.width,
