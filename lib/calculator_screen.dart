@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:my_calculator_flutter/button_values.dart';
 import 'package:intl/intl.dart';
+import 'dart:math';
+
+import 'package:my_calculator_flutter/util/number_format.dart';
 
 class CalculatorScreen extends StatefulWidget {
   const CalculatorScreen({super.key});
@@ -22,12 +25,29 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   bool operandHasBeenSelected =
       false; //bool to change color back to original color after operand is highlighted and number2 needs to be pressed
 
+//TODO: FIX ROUNDOFF... USE ALGORITHM FROM OTHER FILE
+//TODO: SEPERATE FUNCTIONS INTO DIFFERENT DART FILES
+//TODO: FIX DOUBLE EXCCEEDING MAX NUMMBERS..YOU CAN TRY LONG OR SEE IF ROUND ALGO FIXES IT
   String roundOff(double num) {
     num = double.parse(num.toStringAsFixed(8));
     return "$num";
   }
 
-  NumberFormat outputValueFormatter = NumberFormat.decimalPattern('en_us');
+  // double roundToSignificantFigures(int number, int significantFigures) {
+  //   if (number == 0) return 0.0; // Avoid division by zero
+  //   double orderOfMagnitude = significantFigures -
+  //       1 -
+  //       (number.abs().toString().length - 1).toDouble();
+  //   var scaleFactor = pow(10, orderOfMagnitude);
+  //   return (number / scaleFactor).round() * scaleFactor;
+  // } //rounds all output  number to 8 s.f
+  CustomFormatterExample afg = CustomFormatterExample();
+
+  // NumberFormat outputValueFormatter = xam.CustomFormatterExample(locale: 'en_US', decimalDigits: 0);
+  NumberFormat outputValueFormatter =
+      NumberFormat.decimalPatternDigits(locale: 'en_US', decimalDigits: 0);
+  // NumberFormat outputValueFormatter = NumberFormat.decimalPattern('en_us');'en_us',6
+
   int formattedIntNumber1 =
       0; // //int to store values of to-be made  comma formatted Num1 text
   int formattedIntNumber2 =
@@ -54,30 +74,83 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     //sets value for outputs of number1 and number2 depending on its datatype(int or double)
     if (number1.isNotEmpty && (numberIsBool(number1) == false)) {
       formattedIntNumber1 = int.parse(number1);
+      // formatDoubleNumber1 =
     } else if (number1.isNotEmpty) {
-      formatDoubleNumber1 = double.parse(number1);
+      if (number1.contains(".") && number1.endsWith(".")) {
+        // formatDoubleNumber1 = double.parse(formattedIntNumber1.toString());
+        formattedOutputNum1 =
+            number1; //sets double directly to output string num
+      } else {
+        // formatDoubleNumber1 =
+        //     double.parse(number1) + double.parse("$formattedIntNumber1");
+        formatDoubleNumber1 = double.parse(number1);
+      }
     }
 
-    if (number2.isNotEmpty && (numberIsBool(number1) == false)) {
-      formattedIntNumber2 = int.parse((number2));
+    if (number2.isNotEmpty && (numberIsBool(number2) == false)) {
+      formattedIntNumber2 = int.parse(number2);
+      // formatDoubleNumber1 =
     } else if (number2.isNotEmpty) {
-      formatDoubleNumber2 = double.parse(number2);
+      if (number2.contains(".") && number2.endsWith(".")) {
+        // formatDoubleNumber1 = double.parse(formattedIntNumber1.toString());
+        formattedOutputNum2 =
+            number2; //sets double directly to output string num
+      } else {
+        // formatDoubleNumber1 =
+        //     double.parse(number1) + double.parse("$formattedIntNumber1");
+        formatDoubleNumber2 = double.parse(number2);
+      }
     }
 
     if ((numberIsBool(number1) == false) || (numberIsBool(number2) == false)) {
-      print(
-          "Number1 output is an int: ${outputValueFormatter.format(formattedIntNumber1)}");
-      print(
-          "Number2  output is an int: ${outputValueFormatter.format(formattedIntNumber2)}");
+      if (number2.isEmpty) {
+        print("Number1 output is an int:");
+        afg.printFormattedValue(formattedIntNumber1);
+      } else if (isCalculatedMoreThanOnce) {
+        print("Number1 output is an int:");
+        afg.printFormattedValue(formattedIntNumber1);
+      } else {
+        print(
+            "Number2  output is an int:"); //${outputValueFormatter.format(formattedIntNumber2)}");
+        afg.printFormattedValue(formattedIntNumber2);
+      }
+
+      //${outputValueFormatter.format(formattedIntNumber1)}");
     }
     if ((numberIsBool(number1) == true) || (numberIsBool(number2) == true)) {
-      print(
-          "Number1 output is a double : ${outputValueFormatter.format(formatDoubleNumber1)}");
-      print(
-          "Number2 output is an double:  ${outputValueFormatter.format(formatDoubleNumber2)}");
+      if (number2.isEmpty) {
+        print("Number1 output is a double:");
+        afg.printFormattedValue(formatDoubleNumber1);
+      } else if (isCalculatedMoreThanOnce) {
+        print("Number1 output is a double:");
+        afg.printFormattedValue(formatDoubleNumber1);
+      } else {
+        print("Number2  output is  double:");
+        afg.printFormattedValue(formatDoubleNumber2);
+      }
+
+      // print(
+      //       "Number1 output is a double :"); // ${(outputValueFormatter.format(formatDoubleNumber1))}");
+      //   afg.printFormattedValue(formatDoubleNumber1);
+      //   print(
+      //       "Number2 output is an double: "); //${outputValueFormatter.format(formatDoubleNumber2)}");
+      //   afg.printFormattedValue(formatDoubleNumber2);
     }
 
     // print(formattedNumber2);
+    // if ("number1$operand$number2".isEmpty) {
+    //   return "0";
+    // } else if ("$number1$operand".isNotEmpty &&
+    //     number2.isNotEmpty &&
+    //     ((isCalculatedMoreThanOnce == false && operandIsChanged == false))) {
+    //   if (numberIsBool(number2) == false) {
+    //     outputValueFormatter.format(formattedIntNumber2);
+    //   } else {
+    //     outputValueFormatter.format(formattedIntNumber2);
+    //   }
+    // }
+
+    //             number2.isNotEmpty &&)
     return "$number1$operand$number2".isEmpty
         ? "0"
         : ("$number1$operand".isNotEmpty &&
@@ -85,15 +158,33 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 ((isCalculatedMoreThanOnce == false &&
                     operandIsChanged == false)))
             ? (numberIsBool(number2) == false)
-                ? outputValueFormatter.format(formattedIntNumber2)
+                // ? outputValueFormatter.format(formattedIntNumber2)
+                ? afg.customFormatter.format(formattedIntNumber2)
                 : (numberIsBool(number2) == true)
-                    ? outputValueFormatter.format(formatDoubleNumber2)
+                    ? number2.endsWith('.')
+                        ? formattedOutputNum2 //uses direct value of number1
+                        // : outputValueFormatter.format(formatDoubleNumber2)
+                        : afg.customFormatter.format(formatDoubleNumber2)
+
+                    // ? outputValueFormatter.format(formatDoubleNumber2)
+                    // ? number2
                     : (numberIsBool(number1) == false)
-                        ? outputValueFormatter.format(formattedIntNumber1)
-                        : outputValueFormatter.format(formatDoubleNumber1)
+                        ? afg.customFormatter.format(formattedIntNumber1)
+                        // ? outputValueFormatter.format(formattedIntNumber1)
+                        : double.parse((outputValueFormatter
+                                .format(formatDoubleNumber1)))
+                            .toString()
             : (numberIsBool(number1) == true)
-                ? outputValueFormatter.format(formatDoubleNumber1)
-                : outputValueFormatter.format(formattedIntNumber1);
+                ? number1.endsWith('.')
+                    ? formattedOutputNum1 //uses direct value of number1
+                    // : outputValueFormatter.format(formatDoubleNumber1)
+                    : afg.customFormatter.format(formatDoubleNumber1)
+                // : outputValueFormatter
+                //     .format(formattedIntNumber1); //value for if bool
+                : afg.customFormatter.format(formattedIntNumber1);
+
+    // ? formattedOutputNum1
+    // : outputValueFormatter.format(formattedIntNumber1);
 
     // ? outputValueFormatter.format(formattedIntNumber2)
     // : outputValueFormatter.format(formattedIntNumber1);
@@ -108,6 +199,21 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        actions: [
+          TextButton(
+              onPressed: () {},
+              child: Text(
+                'History',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontStyle: FontStyle.italic,
+                  color: Colors.red,
+                ),
+              ))
+        ],
+      ),
       backgroundColor: Colors.black,
       body: SafeArea(
         bottom: false,
@@ -116,20 +222,26 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
             //output
 
             Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 10.0),
-                  child: Text(
-                    outputValue(),
+              child: GestureDetector(
+                onHorizontalDragStart: (_) {
+                  delete(); //slide to delete function
+                },
+                child: Container(
+                  // height: screenSize.width,
+                  padding: const EdgeInsets.all(16),
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 10.0),
+                    child: Text(
+                      outputValue(),
 
-                    // : "$number1$operand$number2",
-                    style: const TextStyle(
-                      fontSize: 50,
-                      fontWeight: FontWeight.bold,
+                      // : "$number1$operand$number2",
+                      style: const TextStyle(
+                        fontSize: 50,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.end,
                     ),
-                    textAlign: TextAlign.end,
                   ),
                 ),
               ),
@@ -369,6 +481,17 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         false; //bool to figure out what to print after calulations have been done implicity. e.g 3+4 -1
     operandHasBeenSelected = false; //bool t
 
+    formattedIntNumber1 =
+        0; // //int to store values of to-be made  comma formatted Num1 text
+    formattedIntNumber2 =
+        0; // //int to store values of to-be made  comma formatted Num2 text
+    formatDoubleNumber1 = 0.0;
+    formatDoubleNumber2 = 0.0;
+
+    formattedOutputNum1 =
+        ""; //string to hold values of comma formatted Num1 text
+    formattedOutputNum2 = "";
+
     setState(() {});
   }
 
@@ -406,8 +529,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     }
 
     setState(() {
-      number1 = roundOff(result);
-      // number1 = "$result";
+      // number1 = roundOff(result);
+      number1 = "$result";
 
       if (number1.endsWith(".0")) {
         // int numba = int.parse(number1);
@@ -425,10 +548,12 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   }
 
 //##### Converts output to percentage
+//TODO: FIX OUTPUT OF PERCENTAGE
   void convertToPercentage() {
-    if (number1.isNotEmpty && operand.isNotEmpty && number2.isNotEmpty
-        // isAlreadyCalculated == false
-        ) {
+    if (number1.isNotEmpty &&
+        operand.isNotEmpty &&
+        number2.isNotEmpty &&
+        isAlreadyCalculated == false) {
       //e.g 2 + 4
       //Calculate before conversiontion
       //note our calc value should always be set to number1
