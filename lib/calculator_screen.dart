@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_calculator_flutter/button_values.dart';
 import 'package:intl/intl.dart';
+import 'package:my_calculator_flutter/util/dialog_box.dart';
 import 'dart:math';
 
 import 'package:my_calculator_flutter/util/number_format.dart';
@@ -13,6 +14,44 @@ class CalculatorScreen extends StatefulWidget {
 }
 
 class _CalculatorScreenState extends State<CalculatorScreen> {
+  List<dynamic>? historyOutput = [
+    ["8", "+", "230", "2462"],
+    // ["234", "*", "457", "32155"],
+    // ["10", "x", "10", "100"]
+  ];
+
+  // String formattedNumber1 = afg.customFormatter.format(formattedIntNumber1);
+  late String toStoreOperand;
+  late String
+      toStoreFormattedNumber1; //variables to store in historyOutput List
+  late String toStoreFormattedNumber2;
+  late String toStoreFormattedResult;
+
+  void updateHistory() {
+    //func to store values to put in historyOutput
+    // historyOutput!.add([value]);
+    //need to create four variables to the num1, num2, operand, and result
+    toStoreFormattedNumber1 = afg.StoredformattedNumber1;
+    toStoreFormattedNumber2 = afg.StoredformattedNumber2;
+    toStoreOperand = operand;
+    if (isAlreadyCalculated) {
+      toStoreFormattedResult = afg.StoredformattedResult;
+    }
+    // toStoreOperand = afg.formattedNumber;
+
+    print(
+        'Historry nums are \n Num1: $toStoreFormattedNumber1 \n $toStoreOperand '
+        'Operand: $toStoreOperand \n Num2: $toStoreFormattedNumber2 \n Result: $toStoreFormattedResult ');
+
+    historyOutput?.add([
+      toStoreFormattedNumber1,
+      toStoreOperand,
+      toStoreFormattedNumber2,
+      toStoreFormattedResult
+    ]);
+    historyOutput = historyOutput?.reversed.toList();
+  }
+
   String number1 = ""; //  has values one variables .0-9
   String operand = ""; // hvalues + - % /
   String number2 = ""; //values . 0-9
@@ -152,6 +191,22 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
     //             number2.isNotEmpty &&)
 
+    // if ("$number1$operand$number2".isEmpty) {
+    //   return '0';
+    // } else if (("$number1$operand".isNotEmpty &&
+    //     number2.isNotEmpty &&
+    //     ((isCalculatedMoreThanOnce == false && operandIsChanged == false)))) {
+    //   if ((numberIsBool(number2) == false)) {
+    //     return afg.customFormatter.format(formattedIntNumber2);
+    //   } else if ((numberIsBool(number2) == true)) {
+    //     if (number2.endsWith('.')) {
+    //       return formattedOutputNum2;
+    //     } else {
+    //       return afg.customFormatter.format(formatDoubleNumber2);
+    //     }
+    //   }
+    // }
+
     return "$number1$operand$number2".isEmpty
         ? "0"
         : ("$number1$operand".isNotEmpty &&
@@ -160,17 +215,20 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                     operandIsChanged == false)))
             ? (numberIsBool(number2) == false)
                 // ? outputValueFormatter.format(formattedIntNumber2)
-                ? afg.customFormatter.format(formattedIntNumber2)
+
+                // ? afg.customFormatter.format(formattedIntNumber2)
+                // ? afg.setFormattedValue(formattedIntNumber2)
+                ? afg.setFormattedValueNum2(formattedIntNumber2)
                 : (numberIsBool(number2) == true)
                     ? number2.endsWith('.')
                         ? formattedOutputNum2 //uses direct value of number1
                         // : outputValueFormatter.format(formatDoubleNumber2)
-                        : afg.customFormatter.format(formatDoubleNumber2)
+                        : afg.setFormattedValueNum2(formatDoubleNumber2)
 
                     // ? outputValueFormatter.format(formatDoubleNumber2)
                     // ? number2
                     : (numberIsBool(number1) == false)
-                        ? afg.customFormatter.format(formattedIntNumber1)
+                        ? afg.setFormattedValueNum1(formattedIntNumber1)
                         // ? outputValueFormatter.format(formattedIntNumber1)
                         : double.parse((outputValueFormatter
                                 .format(formatDoubleNumber1)))
@@ -179,10 +237,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 ? number1.endsWith('.')
                     ? formattedOutputNum1 //uses direct value of number1
                     // : outputValueFormatter.format(formatDoubleNumber1)
-                    : afg.customFormatter.format(formatDoubleNumber1)
+                    : afg.setFormattedValueNum1(formatDoubleNumber1)
                 // : outputValueFormatter
                 //     .format(formattedIntNumber1); //value for if bool
-                : afg.customFormatter.format(formattedIntNumber1);
+                : afg.setFormattedValueNum1(formattedIntNumber1);
 
     // ? formattedOutputNum1
     // : outputValueFormatter.format(formattedIntNumber1);
@@ -202,12 +260,20 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     double _initialX = 0.0;
     double _currentX = 0.0;
 
+    void showPopUp() {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return Dialogbox(historyOutput: historyOutput);
+          });
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
         actions: [
           TextButton(
-              onPressed: () {},
+              onPressed: showPopUp,
               child: Text(
                 'History',
                 style: TextStyle(
@@ -559,8 +625,20 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       // operand = "";
 
       print("calculated num1: $number1");
+      // afg.setFormattedValue(number1);
 
       // number1 =
+    });
+    // afg.setFormattedValueNum1(formattedIntNumber1);
+
+    //algorithm to Store valaue of Result of operations to History
+    if (numberIsBool(result.toString()) == true) {
+      afg.setFormattedValueResult(result);
+    }
+    //updateHistory(); //initializes/updates  the values of variables to be stored
+
+    setState(() {
+      updateHistory(); //initializes/updates  the values of variables to be stored
     });
   }
 
